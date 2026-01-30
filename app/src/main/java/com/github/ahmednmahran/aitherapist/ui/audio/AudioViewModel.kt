@@ -1,6 +1,7 @@
 package com.github.ahmednmahran.aitherapist.ui.audio
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.ahmednmahran.aitherapist.data.TherapistRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,8 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 
-class AudioViewModel : ViewModel() {
-    private val repository = TherapistRepository()
+class AudioViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = TherapistRepository(application)
     private val _analysisResult = MutableStateFlow<String>("Press record to start a session.")
     val analysisResult = _analysisResult.asStateFlow()
 

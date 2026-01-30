@@ -1,6 +1,7 @@
 package com.github.ahmednmahran.aitherapist.ui.chat
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.ahmednmahran.aitherapist.data.TherapistRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,8 +10,8 @@ import kotlinx.coroutines.launch
 
 data class Message(val text: String, val isUser: Boolean)
 
-class ChatViewModel : ViewModel() {
-    private val repository = TherapistRepository()
+class ChatViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = TherapistRepository(application)
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
 
