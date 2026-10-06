@@ -1,15 +1,16 @@
 package com.github.ahmednmahran.aitherapist.ui.video
 
+import android.app.Application
 import android.graphics.Bitmap
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.ahmednmahran.aitherapist.data.TherapistRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class VideoViewModel : ViewModel() {
-    private val repository = TherapistRepository()
+class VideoViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = TherapistRepository(application)
     private val _analysisResult = MutableStateFlow<String>("Tap the button to analyze your current expression.")
     val analysisResult = _analysisResult.asStateFlow()
 
