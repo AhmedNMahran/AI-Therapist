@@ -1,36 +1,37 @@
 package com.github.ahmednmahran.aitherapist.data
 
-enum class RouterDecision { CLOUD, LOCAL }
+import com.google.firebase.ai.InferenceMode
+import com.google.firebase.ai.OnDeviceConfig
+import com.google.firebase.ai.type.PublicPreviewAPI
 
+@OptIn(PublicPreviewAPI::class)
 object SmartRouter {
     /**
-     * Decisions based on:
+     * Determines the hybrid inference mode based on:
      * 1. Connectivity (Online vs Offline)
-     * 2. Complexity (Deep Reasoning vs Simple Task)
+     * 2. Complexity & Modality (Deep Reasoning, Audio, Text/Image)
      * 3. Hardware Support (Gemini Nano availability)
      */
     fun routeRequest(
-        hasImage: Boolean,
-        hasAudio: Boolean,
-        isOnline: Boolean,
-        requiresDeepReasoning: Boolean,
-        isLocalSupported: Boolean
-    ): RouterDecision {
-        return when {
-            // Audio is generally not supported well on-device yet in this beta, so cloud it is
-            hasAudio && isOnline -> RouterDecision.CLOUD
+        hasImage: Boolean = false,
+        hasAudio: Boolean = false,
+        isOnline: Boolean = true,
+        requiresDeepReasoning: Boolean = false,
+        isLocalSupported: Boolean = false
+    ): OnDeviceConfig {
+        val mode = when {
+            // Audio or complex deep reasoning tasks prefer cloud inference
+            (hasAudio || requiresDeepReasoning) && isOnline -> InferenceMode.PREFER_IN_CLOUD
             
-            // If we are offline, we HAVE to go local if supported
-            !isOnline && isLocalSupported -> RouterDecision.LOCAL
+            // When offline, attempt on-device inference if local hardware is supported
+            !isOnline && isLocalSupported -> InferenceMode.ONLY_ON_DEVICE
             
-            // If local is not supported at all, we must go cloud
-            !isLocalSupported && isOnline -> RouterDecision.CLOUD
+            // If local processing is not supported on-device, use in-cloud inference
+            !isLocalSupported -> InferenceMode.ONLY_IN_CLOUD
             
-            // Deep reasoning (complex therapy plans) usually needs the Cloud Giant
-            requiresDeepReasoning && isOnline -> RouterDecision.CLOUD
-            
-            // Simple text or image description? Local Hero is faster
-            else -> RouterDecision.LOCAL
+            // Default: prefer on-device with seamless fallback to in-cloud inference
+            else -> InferenceMode.PREFER_ON_DEVICE
         }
+        return OnDeviceConfig(mode = mode)
     }
 }

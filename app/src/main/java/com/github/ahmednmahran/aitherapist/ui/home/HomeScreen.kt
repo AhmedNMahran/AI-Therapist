@@ -3,7 +3,7 @@ package com.github.ahmednmahran.aitherapist.ui.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.*
@@ -40,7 +40,7 @@ fun HomeScreen(navController: NavController) {
             SessionCard(
                 title = "Chat Session",
                 description = "Text-based therapy",
-                icon = Icons.Default.Chat,
+                icon = Icons.AutoMirrored.Filled.Chat,
                 onClick = { navController.navigate(Screen.Chat.route) }
             )
             Spacer(modifier = Modifier.height(16.dp))

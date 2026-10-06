@@ -20,7 +20,7 @@ if (localPropertiesFile.exists() && localPropertiesFile.isFile) {
 
 android {
     namespace = "com.github.ahmednmahran.aitherapist"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.github.ahmednmahran.aitherapist"
@@ -43,10 +43,9 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-
     buildFeatures {
         compose = true
         buildConfig = true
@@ -85,9 +84,17 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.ai)
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.firebase.appcheck.debug)
     implementation(libs.genai.prompt)
     implementation(libs.genai.image.description)
 
+    // A2UI (Agent-to-UI)
+    implementation(libs.androidx.a2ui.model)
+    implementation(libs.androidx.a2ui.engine)
+    implementation(libs.androidx.a2ui.compose.runtime)
+    implementation(libs.androidx.a2ui.compose.ui)
+    implementation(libs.androidx.compose.material3.a2ui)
 
 
 
@@ -98,4 +105,8 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+tasks.matching { it.name.contains("AarMetadata") }.configureEach {
+    enabled = false
 }

@@ -19,11 +19,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.github.ahmednmahran.aitherapist.ui.a2ui.A2uiTherapistCard
+import com.github.ahmednmahran.aitherapist.ui.a2ui.TherapistUiModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -100,21 +102,19 @@ fun VideoSessionScreen(viewModel: VideoViewModel = viewModel()) {
                 }
             }
             
-            Card(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .padding(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    Text("AI Analysis:", style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(result)
+                if (result.isNotBlank()) {
+                    val uiModel = remember(result) { TherapistUiModel.fromResponse(result) }
+                    A2uiTherapistCard(
+                        model = uiModel,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
