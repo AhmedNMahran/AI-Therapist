@@ -49,6 +49,6 @@ class OnDeviceAI(private val context: Context) {
     
     fun isSupported(): Boolean {
         // In a real app, we'd check device compatibility via ML Kit
-        return true 
+        return false
     }
 }

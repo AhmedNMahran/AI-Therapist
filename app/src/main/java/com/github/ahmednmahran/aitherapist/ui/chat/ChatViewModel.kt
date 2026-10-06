@@ -4,11 +4,16 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.ahmednmahran.aitherapist.data.TherapistRepository
+import com.github.ahmednmahran.aitherapist.ui.a2ui.TherapistUiModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class Message(val text: String, val isUser: Boolean)
+data class Message(
+    val text: String,
+    val isUser: Boolean,
+    val uiModel: TherapistUiModel? = null
+)
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = TherapistRepository(application)
@@ -22,12 +27,17 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         if (text.isBlank()) return
         
         val currentList = _messages.value
-        _messages.value = currentList + Message(text, true)
+        _messages.value = currentList + Message(text = text, isUser = true)
         _isLoading.value = true
 
         viewModelScope.launch {
             val response = repository.analyzeText(text)
-            _messages.value = _messages.value + Message(response, false)
+            val uiModel = TherapistUiModel.fromResponse(response)
+            _messages.value = _messages.value + Message(
+                text = response,
+                isUser = false,
+                uiModel = uiModel
+            )
             _isLoading.value = false
         }
     }

@@ -2,10 +2,10 @@ package com.github.ahmednmahran.aitherapist.ui.audio
 
 import android.Manifest
 import android.media.MediaRecorder
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
+import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.github.ahmednmahran.aitherapist.ui.a2ui.A2uiTherapistCard
+import com.github.ahmednmahran.aitherapist.ui.a2ui.TherapistUiModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -57,6 +59,7 @@ fun AudioRecorderContent(viewModel: AudioViewModel, result: String, isLoading: B
     var isRecording by remember { mutableStateOf(false) }
     var recorder by remember { mutableStateOf<MediaRecorder?>(null) }
     var audioFile by remember { mutableStateOf<File?>(null) }
+    val scrollState = rememberScrollState()
 
     DisposableEffect(Unit) {
         onDispose {
@@ -65,17 +68,21 @@ fun AudioRecorderContent(viewModel: AudioViewModel, result: String, isLoading: B
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
+        Spacer(modifier = Modifier.height(24.dp))
         Icon(
             if (isRecording) Icons.Default.Stop else Icons.Default.Mic,
             contentDescription = null,
-            modifier = Modifier.size(120.dp),
+            modifier = Modifier.size(100.dp),
             tint = if (isRecording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         
         Button(
             onClick = {
@@ -92,7 +99,12 @@ fun AudioRecorderContent(viewModel: AudioViewModel, result: String, isLoading: B
                 } else {
                     val file = File(context.cacheDir, "audio_session.mp4")
                     audioFile = file
-                    recorder = MediaRecorder().apply {
+                    recorder = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        MediaRecorder(context)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        MediaRecorder()
+                    }).apply {
                         setAudioSource(MediaRecorder.AudioSource.MIC)
                         setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                         setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -112,25 +124,16 @@ fun AudioRecorderContent(viewModel: AudioViewModel, result: String, isLoading: B
             Text(if (isRecording) "Stop & Analyze" else "Start Recording")
         }
         
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         
         if (isLoading) {
             CircularProgressIndicator()
-        } else {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Text(
-                    text = result,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(16.dp).scrollable(
-                        state = rememberScrollState(0),
-                        orientation = Orientation.Vertical,
-                        enabled = true,
-                    )
-                )
-            }
+        } else if (result.isNotBlank()) {
+            val uiModel = remember(result) { TherapistUiModel.fromResponse(result) }
+            A2uiTherapistCard(
+                model = uiModel,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
